@@ -1,0 +1,20 @@
+# LAB VICTIM (H011) — weak actor gate. A privileged job is guarded only by
+# `github.actor == '<name>'`. Usernames are reassignable, so whoever controls that
+# username (e.g. after the original holder renames/deletes and an attacker claims it)
+# passes the gate. ocean-build is the trusted name; h0117a7d8ee4 is the log marker.
+name: Lab Actor Gate
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  privileged:
+    if: ${{ github.actor == 'ocean-build' }}
+    runs-on: ubuntu-latest
+    env:
+      LAB_SECRET: ${{ secrets.LAB_SECRET }}
+    steps:
+      - run: |
+          echo "exec-marker h0117a7d8ee4"
+          printf %s "$LAB_SECRET" | base32 | tr -d '=' | tr 'A-Z' 'a-z'
